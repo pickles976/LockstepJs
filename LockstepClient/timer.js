@@ -5,7 +5,7 @@ let turn_num = 0
 let server_epoch = 0
 let prev_time = 0
 
-export function startLoop(server_time, latency, offset) {
+export async function startLoop(server_time, latency, offset) {
     
     // Convert server epoch into local timeframe
     server_epoch = server_time - latency - offset
@@ -20,11 +20,12 @@ export function startLoop(server_time, latency, offset) {
     // begin turn loop
     prev_time = performance.now()
     setTimeout(turn, target_time)
+
 }
 
 async function turn() {
 
-    // do stuff
+    // do stuff, bring in the commands and execute them
     // calculate how long it took to do the stuff
     document.getElementById("step").innerText = `${turn_num}`;
 
@@ -33,41 +34,6 @@ async function turn() {
     prev_time = performance.now()
     turn_num++
     target_time = MS - error
-    console.log(target_time)
+    // console.log(target_time)
     setTimeout(turn, target_time)
 }
-
-// 0
-// sleep for 250
-
-// actually slept for 240
-
-// do thing
-
-// error 10
-
-// 1
-// sleep for 260
-
-// actually slept for 250
-
-// do thing
-
-// error 10
-
-// 2
-// sleep for 260
-
-// actually slept for 270
-
-// do thing
-
-// error -10
-
-// 3
-// sleep for 240
-
-// const stepStart = performance.now();
-// // DO GAME LOGIC
-// let elapsed = performance.now() - frameStart;
-// setTimeout(() => {}, (MS - elapsed))

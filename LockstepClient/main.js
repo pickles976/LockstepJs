@@ -9,6 +9,7 @@ exampleSocket.onmessage = (event) => {
   readPacket(JSON.parse(event.data))
 };
 
+// TODO: each case needs to be its own function
 function readPacket(packet) {
   switch(packet.type) {
     case "MSSG": 
@@ -18,6 +19,7 @@ function readPacket(packet) {
     case "TREQ":
       let time = Date.now()
       // simulate latency
+      // TODO: TRES packet
       sleep(LATENCY).then(() => {
         time = Date.now()
         sleep(LATENCY).then(() => {
@@ -31,7 +33,14 @@ function readPacket(packet) {
       let latency = parseFloat(packet.data.latency);
       let offset = parseFloat(packet.data.offset);
       let epoch = parseFloat(packet.data.epoch);
-      startLoop(epoch, latency, offset)
+      startLoop(epoch, latency, offset).then(() => {
+        exampleSocket.send(JSON.stringify({ type : "SUCC" }), {binary: false})
+      })
+      break;
+    case "CMND":
+      let node = document.createElement('li');
+      node.appendChild(document.createTextNode(JSON.stringify(packet.data)));
+      document.getElementById('messages').appendChild(node);
       break;
     default:
       console.log("Unrecognized packet type");

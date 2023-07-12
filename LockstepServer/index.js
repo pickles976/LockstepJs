@@ -22,6 +22,14 @@ wss.sendAll = function(data) {
     })
 }
 
+wss.sendAllExceptOrigin = function(data, ws) {
+    this.clients.forEach((client) => {
+        if (client.id != ws.id) {
+            client.send(JSON.stringify(data), {binary: false})
+        }
+    })
+}
+
 wss.on('connection', function connection(ws) {
 
   ws.id = wss.getUniqueID();
@@ -32,30 +40,28 @@ wss.on('connection', function connection(ws) {
     delete clientList[ws.id];
   })
 
-  synchronize(ws)
+  handshake(ws)
 
-//   clientList[ws.id] = true;
-//   wss.sendAll({ type: "MSSG", data : clientList});
-
-//   wss.sendAll({ type: "TREQ", data : {}});
-
-//   ws.send('Connected');
-
+  // Show client is connecting
+  clientList[ws.id] = false;
+  wss.sendAll({ type: "MSSG", data : clientList});
 
 });
 
-// TODO: we need to do this multiple times, over the course of a few seconds
-// then average them to get our sync values
-function synchronize(ws) {
+// 1. Handshake - find client latency and timer offset
+// 2. Synchronize - synchronize client clock to server time
+// 3. Ready - forward all incoming commands to every other client
+
+function handshake(ws) {
 
     console.log(`Synchronizing client clock ${ws.id}`)
     let latencies = []
     let offsets = []
     let i = 0
 
+    // TODO: consolidate these into a switch statement
     ws.on('message', function message(data) {
 
-        // console.log(time_0)
         data = JSON.parse(data)
 
         let time_1 = data
@@ -87,7 +93,7 @@ function synchronize(ws) {
               }, 0) / offsets.length;
             ws.latency = mean_latency
             ws.clock_diff = mean_diff
-            readyClient(ws)
+            synchronize(ws)
         }
     });
 
@@ -95,11 +101,34 @@ function synchronize(ws) {
     ws.send(JSON.stringify({ type: "TREQ", data : {}}), {binary: false})
 }
 
-function readyClient(ws) {
-    // TODO: listen for success message
-    // if message successful, just start forwarding commands to everyone
+function synchronize(ws) {
+
+    // listen for success message
+    ws.on('message', function message(data) {
+        data = JSON.parse(data)
+        if (data.type == "SUCC") {
+            ready(ws)
+        } else {
+            console.log(`Client ${ws.id} unable to sync`);
+        }
+    });
+
+    // Tell client to start game timer
     ws.send(JSON.stringify({ type: "STRT", data : { latency: ws.latency, offset: ws.clock_diff, epoch: epoch_time }}), {binary: false})
-    console.log("Send client sync packet")
+    console.log("Sending client sync packet")
+}
+
+function ready(ws) {
+
+    ws.on('message', function message(data) {
+        // forward packet to all clients except for sender
+        wss.sendAllExceptOrigin(data, ws)
+    });
+
+    // Show client is connected
+    console.log("Client ready to accept commands.")
+    clientList[ws.id] = true;
+    wss.sendAll({ type: "MSSG", data : clientList});
 }
 
 function sleep(ms) {
