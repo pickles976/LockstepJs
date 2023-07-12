@@ -7,12 +7,25 @@
     <title>Vite App</title>
   </head>
   <body>
-    <div id="app"></div>
     <script type="module" src="/main.js"></script>
-    <h1>Lockstep Demo</h1>
-    <h3>Clients</h3>
-    <p id="clients">NULL</p>
-    <h3>Messages</h3>
-    <ul id="messages"></ul>
+    <h1 style="text-align: center;">Lockstep Demo</h1>
+    <div id="app" style="display: flex; flex-direction: row; justify-content: space-around;">
+    <div>
+      <h3>Clients</h3>
+      <p id="clients">NULL</p>
+      <h3>Messages</h3>
+      <ul id="messages"></ul>
+      <h3>Latency</h3>
+      <p id=latency></p>
+      <h3>Step No.</h3>
+      <p id="step">NULL</p>
+    </div>
+    <div>
+      <h2>Commands</h2>
+      <button id="message">Say Hi</button>
+      <button id="command1">Command 1</button>
+      <button id="command2">Command 2</button>
+    </div>
+    </div>
   </body>
 </html>

@@ -2,9 +2,12 @@ console.log("Starting Server...")
 
 import { WebSocketServer } from 'ws';
 
+const MAX_HANDSHAKES = 5;
+
 let sequential_id = 0;
 let clientList = {};
-let latencies = {};
+let epoch_time = Date.now()
+let time_0 = Date.now()
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -29,10 +32,10 @@ wss.on('connection', function connection(ws) {
     delete clientList[ws.id];
   })
 
-  handleHandshake(ws)
+  synchronize(ws)
 
-  clientList[ws.id] = true;
-  wss.sendAll({ type: "MSSG", data : clientList});
+//   clientList[ws.id] = true;
+//   wss.sendAll({ type: "MSSG", data : clientList});
 
 //   wss.sendAll({ type: "TREQ", data : {}});
 
@@ -43,25 +46,62 @@ wss.on('connection', function connection(ws) {
 
 // TODO: we need to do this multiple times, over the course of a few seconds
 // then average them to get our sync values
-function handleHandshake(ws) {
+function synchronize(ws) {
 
-    let time_sent = Date.now()
+    console.log(`Synchronizing client clock ${ws.id}`)
+    let latencies = []
+    let offsets = []
+    let i = 0
 
     ws.on('message', function message(data) {
+
+        // console.log(time_0)
         data = JSON.parse(data)
-        console.log(data)
-        let time_rcvd = data
-        let time_rtrnd = Date.now()
 
-        let round_trip = time_rtrnd - time_sent
+        let time_1 = data
+        let time_2 = Date.now()
+
+        let round_trip = time_2 - time_0
         let latency = round_trip / 2
-        let clock_diff = time_rcvd - time_sent - latency
-
+        let clock_diff = (time_2 - latency) - time_1
         console.log(`Latency: ${latency}ms`)
         console.log(`Clock diff: ${clock_diff}ms`)
 
+        latencies.push(latency)
+        offsets.push(clock_diff)
+
+        i++
+        if (i < MAX_HANDSHAKES) {
+            sleep(500).then(() => {
+                time_0 = Date.now()
+                ws.send(JSON.stringify({ type: "TREQ", data : {}}), {binary: false})
+            })
+        } else {
+            console.log(`Latencies: ${latencies}`)
+            console.log(`Clock diffs: ${offsets}`)
+            const mean_latency = latencies.reduce(function (acc, curr){
+                return acc + curr;
+              }, 0) / latencies.length;
+            const mean_diff = offsets.reduce(function (acc, curr){
+                return acc + curr;
+              }, 0) / offsets.length;
+            ws.latency = mean_latency
+            ws.clock_diff = mean_diff
+            readyClient(ws)
+        }
     });
 
-    time_sent = Date.now()
+    time_0 = Date.now()
     ws.send(JSON.stringify({ type: "TREQ", data : {}}), {binary: false})
+}
+
+function readyClient(ws) {
+    // TODO: listen for success message
+    // if message successful, just start forwarding commands to everyone
+    ws.send(JSON.stringify({ type: "STRT", data : { latency: ws.latency, offset: ws.clock_diff, epoch: epoch_time }}), {binary: false})
+    console.log("Send client sync packet")
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

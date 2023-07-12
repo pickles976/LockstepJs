@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "vite": "^4.4.3"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.5"
   }
 }
