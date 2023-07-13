@@ -17,13 +17,12 @@ function readPacket(packet) {
       document.getElementById("clients").innerText = JSON.stringify(packet.data);
       break;
     case "TREQ":
-      let time = Date.now()
       // simulate latency
       // TODO: TRES packet
       sleep(LATENCY).then(() => {
-        time = Date.now()
+        let timestamp = Date.now()
         sleep(LATENCY).then(() => {
-          exampleSocket.send(time, { binary: false})
+          exampleSocket.send(JSON.stringify({type: "TRES", data: {time: timestamp}}), { binary: false})
         })
       })
       break;
