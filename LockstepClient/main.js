@@ -1,10 +1,13 @@
-import { startLoop, turn_num } from "./timer";
+import { TurnManager } from "./timer.js";
 
 const exampleSocket = new WebSocket("ws://127.0.0.1:8080");
+const tm = new TurnManager(turnCallback);
+
 // const LATENCY = 20
 const LATENCY = Math.random() * 50
 document.getElementById("latency").innerText = LATENCY
 
+let commandsToSend = []
 let commandBuffer = []
 
 exampleSocket.onmessage = (event) => {
@@ -34,14 +37,13 @@ function readPacket(packet) {
       let latency = parseFloat(packet.data.latency);
       let offset = parseFloat(packet.data.offset);
       let epoch = parseFloat(packet.data.epoch);
-      startLoop(epoch, latency, offset).then(() => {
+      tm.startLoop(epoch, latency, offset).then(() => {
         exampleSocket.send(JSON.stringify({ type : "SUCC" }), {binary: false})
       })
       break;
     case "CMND":
-      let node = document.createElement('li');
-      node.appendChild(document.createTextNode(JSON.stringify(packet)));
-      document.getElementById('messages').appendChild(node);
+      // console.log(packet)
+      commandBuffer = commandBuffer.concat(packet.commands)
       break;
     default:
       console.log("Unrecognized packet type");
@@ -52,9 +54,34 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function sendCommand(text) {
-  exampleSocket.send(JSON.stringify({ type : "CMND", data: text, turn: turn_num + 2 }), {binary: false})
+function storeCommand(command) {
+  commandsToSend.push({ data: command, turn: tm.turn_num + 2 })
 }
 
-document.getElementById("command1").addEventListener("click", () => { sendCommand("command 1")});
-document.getElementById("command2").addEventListener("click", () => { sendCommand("command 2")});
+function sendCommandBuffer() {
+  if (commandsToSend.length > 0) {
+    exampleSocket.send(JSON.stringify({ type : "CMND", commands: commandsToSend }), {binary: false})
+    commandsToSend = [] 
+  }
+}
+
+function processCommandsForTurn(turn) {
+
+  let commands = commandBuffer.filter((command) => command.turn == turn);
+
+  console.log(commands)
+  commands.forEach((command) => {
+    let node = document.createElement('li');
+    node.appendChild(document.createTextNode(`${JSON.stringify(command)} ${turn}`));
+    document.getElementById('messages').appendChild(node);
+  })
+}
+
+function turnCallback(turn_num) {
+  processCommandsForTurn(turn_num)
+  sendCommandBuffer()
+  document.getElementById("step").innerText = `${turn_num}`;
+}
+
+document.getElementById("command1").addEventListener("click", () => { storeCommand("command 1")});
+document.getElementById("command2").addEventListener("click", () => { storeCommand("command 2")});

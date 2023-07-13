@@ -16,10 +16,11 @@ TODO:
 - [x] Create timer syncing object for handshakes and whatnot
 
 - [x] Create standardized commands
-- [ ] Create command buffer
-- [ ] Synchronize commands (dont execute buffer until timer reaches n steps)
+- [x] Create command buffer
+- [x] Synchronize commands (dont execute buffer until timer reaches n steps)
+- [ ] Re-organize command buffer to not require filtering. 
 - [ ] Create object for packet sending
-- [ ] Panic if command is out of date, tell clients to stop
+- [ ] Panic if command is out of date, hit server and tell clients to stop
 
 - [ ] Add seeded prng
 - [ ] Add basic gameobject that you can move around with clicking
@@ -27,3 +28,13 @@ TODO:
 
 - [ ] Re-sync clients if drift occurs
 - [ ] ???
+
+Bugs
+- [ ] Issue with client times
+```
+file:///F:/Users/Sebastian/Projects/LockstepJs/LockstepServer/synchronizer.js:39
+        this.clientTimes[ws.id].time_0 = Date.now()
+                                       ^
+
+TypeError: Cannot set properties of undefined (setting 'time_0')
+```

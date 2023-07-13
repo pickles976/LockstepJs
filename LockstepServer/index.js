@@ -8,7 +8,6 @@ const MAX_HANDSHAKES = 5;
 const HANDSHAKE_INTERVAL = 250
 
 let sequential_id = 0;
-let clientList = {};
 
 const wss = new WebSocketServer({ port: 8080 });
 const synchronizer = new Synchronizer();
@@ -39,7 +38,8 @@ wss.on('connection', function connection(ws) {
   ws.on('error', console.error);
 
   ws.on('close', function close() {
-    delete clientList[ws.id];
+    synchronizer.disconnectClient(ws);
+    ws.removeAllListeners('message');
   })
 
   ws.on('message', function message(data) {
@@ -47,12 +47,11 @@ wss.on('connection', function connection(ws) {
     handleMessage(ws, data);
   });
 
-  // Show client is connecting
-  clientList[ws.id] = false;
-  wss.sendAll({ type: "MSSG", data : clientList});
-
-  // add our client to the sycnhronizer
+  // add our client to the synchronizer
   synchronizer.addClient(ws);
+  // Show client is connecting
+  wss.sendAll({ type: "MSSG", data : synchronizer.clients});
+  
   // start a handshake loop
   console.log(`Synchronizing client ${ws.id} clock...`)
   synchronizer.timeRequest(ws);
