@@ -12,14 +12,18 @@ TODO:
 - [x] Create dynamic client-side step counting system
 - [x] Synchronize client timers
 - [x] Create a step system
-- [ ] Add seeded prng
 - [x] Make on "message" into one switch statement
 - [x] Create timer syncing object for handshakes and whatnot
 
-- [ ] Create standardized commands
+- [x] Create standardized commands
 - [ ] Create command buffer
-- [ ] Synchronize commands
+- [ ] Synchronize commands (dont execute buffer until timer reaches n steps)
 - [ ] Create object for packet sending
+- [ ] Panic if command is out of date, tell clients to stop
+
+- [ ] Add seeded prng
+- [ ] Add basic gameobject that you can move around with clicking
 - [ ] Basic visualization in Canvas or WebGL
-- [ ] Do something if the game goes out of sync, kick the offending player etc
-- [ ] Figure out how to deal with drift
+
+- [ ] Re-sync clients if drift occurs
+- [ ] ???
