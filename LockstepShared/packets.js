@@ -8,13 +8,16 @@ class Packet {
 
 }
 
-// "MSSG" print a message
 // "TREQ" request current time
 // "TRES" response containing current time
 // "STRT" start turn loop
-// "STOP" stop turn loop and just chill
-// "CMND" commands in-game
-// "SYNC" synchronize entire game state
 // "SUCC" successfully did what the server expected 
+
+// "CMND" in-game command buffer
+// "MSSG" print a message
+
+// "CKSM" checksum of current game state
+// "STOP" stop turn loop and just chill
+// "SYNC" synchronize entire game state
 // "FAIL" failed to do whatever the server expected
 // "EROR" 

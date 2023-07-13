@@ -1,6 +1,6 @@
 const MS = 250
 let target_time = MS
-let turn_num = 0
+export let turn_num = 0
 
 let server_epoch = 0
 let prev_time = 0

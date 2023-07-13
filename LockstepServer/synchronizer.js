@@ -84,4 +84,12 @@ export class Synchronizer {
         return this.clientHandshakes[ws.id] > NUM_HANDSHAKES;
     }
 
+    disconnectClient(ws) {
+        delete this.clients[ws.id]
+        delete this.clientLatencies[ws.id]
+        delete this.clientOffsets[ws.id]
+        delete this.clientTimes[ws.id]
+        delete this.clientHandshakes[ws.id]
+    }
+
 }

@@ -1,9 +1,11 @@
-import { startLoop } from "./timer";
+import { startLoop, turn_num } from "./timer";
 
 const exampleSocket = new WebSocket("ws://127.0.0.1:8080");
 // const LATENCY = 20
 const LATENCY = Math.random() * 50
 document.getElementById("latency").innerText = LATENCY
+
+let commandBuffer = []
 
 exampleSocket.onmessage = (event) => {
   readPacket(JSON.parse(event.data))
@@ -38,7 +40,7 @@ function readPacket(packet) {
       break;
     case "CMND":
       let node = document.createElement('li');
-      node.appendChild(document.createTextNode(JSON.stringify(packet.data)));
+      node.appendChild(document.createTextNode(JSON.stringify(packet)));
       document.getElementById('messages').appendChild(node);
       break;
     default:
@@ -49,3 +51,10 @@ function readPacket(packet) {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+function sendCommand(text) {
+  exampleSocket.send(JSON.stringify({ type : "CMND", data: text, turn: turn_num + 2 }), {binary: false})
+}
+
+document.getElementById("command1").addEventListener("click", () => { sendCommand("command 1")});
+document.getElementById("command2").addEventListener("click", () => { sendCommand("command 2")});

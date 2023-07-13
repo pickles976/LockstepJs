@@ -13,12 +13,13 @@ TODO:
 - [x] Synchronize client timers
 - [x] Create a step system
 - [ ] Add seeded prng
-- [ ] Make on "message" into one switch statement
-- [ ] Create timer syncing object for handshakes and whatnot
+- [x] Make on "message" into one switch statement
+- [x] Create timer syncing object for handshakes and whatnot
 
 - [ ] Create standardized commands
 - [ ] Create command buffer
 - [ ] Synchronize commands
+- [ ] Create object for packet sending
 - [ ] Basic visualization in Canvas or WebGL
 - [ ] Do something if the game goes out of sync, kick the offending player etc
 - [ ] Figure out how to deal with drift

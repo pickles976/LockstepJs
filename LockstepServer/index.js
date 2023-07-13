@@ -76,12 +76,13 @@ function handleMessage(ws, packet) {
             break;
         case "SUCC":
             synchronizer.handleClientTimerSuccess(ws);
+            wss.sendAll({ type: "MSSG", data : synchronizer.clients});
             break;
         case "MSSG":
-            // TODO: forward to all other clients
+            wss.sendAllExceptOrigin(packet, ws);
             break;
         case "CMND":
-            // TODO: forward to all other clients
+            wss.sendAllExceptOrigin(packet, ws);
             break;
         default:
             break;
