@@ -21,15 +21,19 @@ Timers will go out of sync when tabs are running in the background. There is no 
 - [x] Create command buffer
 - [x] Synchronize commands (dont execute buffer until timer reaches n steps)
 - [x] Re-organize command buffer to not require filtering. 
-- [ ] 
-- [ ] Create object for packet sending
-- [ ] Panic if command is out of date, hit server and tell clients to stop
-
 - [ ] Add seeded prng
+- [ ] Add latency to other networking stuff, like sending commands
+- [ ] Add object creation and modification with the 2 commands
+- [ ] Compute checksum for each frame, send back to server
+- [ ] Panic if checksum is wrong
+
+- [ ] Implement constant FPS game loop for objects
 - [ ] Add basic gameobject that you can move around with clicking
 - [ ] Basic visualization in Canvas or WebGL
+- [ ] Create object for packet sending
 
 - [ ] Re-sync clients if drift occurs
+- [ ] Create a "lobby" and "game" distinction that requires all players to start in order to start the timer
 - [ ] ???
 
 ### Bugs

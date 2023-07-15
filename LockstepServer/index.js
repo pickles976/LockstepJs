@@ -1,14 +1,13 @@
-console.log("Starting Server...")
-
 import { WebSocketServer } from 'ws';
 import { Synchronizer } from './synchronizer.js';
 import { sleep } from './util.js';
 
-const MAX_HANDSHAKES = 5;
 const HANDSHAKE_INTERVAL = 250
+const SEED = 1234 // TODO: give clients this seed
 
 let sequential_id = 0;
 
+console.log("Starting Server...")
 const wss = new WebSocketServer({ port: 8080 });
 const synchronizer = new Synchronizer();
 

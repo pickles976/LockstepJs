@@ -1,4 +1,8 @@
 import { TurnManager } from "./timer.js";
+import seedrandom from "seedrandom";
+
+// Seed PRNG
+seedrandom(1234, { global: true })
 
 const exampleSocket = new WebSocket("ws://127.0.0.1:8080");
 const tm = new TurnManager(turnCallback);
