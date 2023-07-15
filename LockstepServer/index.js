@@ -81,7 +81,9 @@ function handleMessage(ws, packet) {
             wss.sendAllExceptOrigin(packet, ws);
             break;
         case "CMND":
-            wss.sendAllExceptOrigin(packet, ws);
+            // To keep logic simple, users "fire and forget" their own
+            // commands, and receive them the same way as everyone else
+            wss.sendAll(packet);
             break;
         default:
             break;

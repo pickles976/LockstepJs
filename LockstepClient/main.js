@@ -8,7 +8,7 @@ const LATENCY = Math.random() * 50
 document.getElementById("latency").innerText = LATENCY
 
 let commandsToSend = []
-let commandBuffer = []
+let commandBuffers = {}
 
 exampleSocket.onmessage = (event) => {
   readPacket(JSON.parse(event.data))
@@ -42,8 +42,11 @@ function readPacket(packet) {
       })
       break;
     case "CMND":
-      // console.log(packet)
-      commandBuffer = commandBuffer.concat(packet.commands)
+      if (packet.turn in commandBuffers) {
+        commandBuffers[packet.turn] = commandBuffers[packet.turn].concat(packet.commands)
+      } else {
+        commandBuffers[packet.turn] = packet.commands
+      }
       break;
     default:
       console.log("Unrecognized packet type");
@@ -55,20 +58,20 @@ function sleep(ms) {
 }
 
 function storeCommand(command) {
-  commandsToSend.push({ data: command, turn: tm.turn_num + 2 })
+  commandsToSend.push({ data: command })
 }
 
 function sendCommandBuffer() {
   if (commandsToSend.length > 0) {
-    exampleSocket.send(JSON.stringify({ type : "CMND", commands: commandsToSend }), {binary: false})
+    exampleSocket.send(JSON.stringify({ type : "CMND", commands: commandsToSend, turn: tm.turn_num + 2 }), {binary: false})
     commandsToSend = [] 
   }
 }
 
 function processCommandsForTurn(turn) {
 
-  let commands = commandBuffer.filter((command) => command.turn == turn);
-
+  // let commands = commandBuffer.filter((command) => command.turn == turn);
+  let commands = commandBuffers[turn] ?? []
   console.log(commands)
   commands.forEach((command) => {
     let node = document.createElement('li');
