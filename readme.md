@@ -21,8 +21,8 @@ Timers will go out of sync when tabs are running in the background. There is no 
 - [x] Create command buffer
 - [x] Synchronize commands (dont execute buffer until timer reaches n steps)
 - [x] Re-organize command buffer to not require filtering. 
-- [ ] Add seeded prng
-- [ ] Add latency to other networking stuff, like sending commands
+- [x] Add seeded prng
+- [x] Add latency to other networking stuff, like sending commands
 - [ ] Add object creation and modification with the 2 commands
 - [ ] Compute checksum for each frame, send back to server
 - [ ] Panic if checksum is wrong

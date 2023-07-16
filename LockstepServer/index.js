@@ -46,8 +46,12 @@ wss.on('connection', function connection(ws) {
     handleMessage(ws, data);
   });
 
+  // Connect
+  ws.send(JSON.stringify({type: "CONN", data: ws.id}), {binary: false})
+
   // add our client to the synchronizer
   synchronizer.addClient(ws);
+
   // Show client is connecting
   wss.sendAll({ type: "MSSG", data : synchronizer.clients});
   

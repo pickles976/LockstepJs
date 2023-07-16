@@ -1,14 +1,18 @@
 import { TurnManager } from "./timer.js";
 import seedrandom from "seedrandom";
 
+// const LATENCY = 20
+const LATENCY = Math.random() * 50
+
 // Seed PRNG
 seedrandom(1234, { global: true })
 
 const exampleSocket = new WebSocket("ws://127.0.0.1:8080");
 const tm = new TurnManager(turnCallback);
 
-// const LATENCY = 20
-const LATENCY = Math.random() * 50
+let id = 0
+let state = {}
+
 document.getElementById("latency").innerText = LATENCY
 
 let commandsToSend = []
@@ -21,13 +25,17 @@ exampleSocket.onmessage = (event) => {
 // TODO: each case needs to be its own function
 function readPacket(packet) {
   switch(packet.type) {
+    case "CONN":
+      console.log(packet)
+      id = packet.data
+      document.getElementById("client_id").innerText = id;
+      break;
     case "MSSG": 
       console.log(packet.data);
       document.getElementById("clients").innerText = JSON.stringify(packet.data);
       break;
     case "TREQ":
       // simulate latency
-      // TODO: TRES packet
       sleep(LATENCY).then(() => {
         let timestamp = Date.now()
         sleep(LATENCY).then(() => {
@@ -42,7 +50,9 @@ function readPacket(packet) {
       let offset = parseFloat(packet.data.offset);
       let epoch = parseFloat(packet.data.epoch);
       tm.startLoop(epoch, latency, offset).then(() => {
-        exampleSocket.send(JSON.stringify({ type : "SUCC" }), {binary: false})
+        sleep(LATENCY).then(() => {
+          exampleSocket.send(JSON.stringify({ type : "SUCC" }), {binary: false})
+        })
       })
       break;
     case "CMND":
@@ -67,8 +77,11 @@ function storeCommand(command) {
 
 function sendCommandBuffer() {
   if (commandsToSend.length > 0) {
-    exampleSocket.send(JSON.stringify({ type : "CMND", commands: commandsToSend, turn: tm.turn_num + 2 }), {binary: false})
+    let temp = JSON.parse(JSON.stringify(commandsToSend))
     commandsToSend = [] 
+    sleep(LATENCY).then(() => {
+      exampleSocket.send(JSON.stringify({ type : "CMND", commands: temp, turn: tm.turn_num + 2 }), {binary: false})
+    });
   }
 }
 
